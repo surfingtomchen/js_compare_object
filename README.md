@@ -1,8 +1,8 @@
-# compare source object(array) and target object(array)
+# compare two js object and return difference between them
 
-will return differ path, the operation and the operation related data
+will return differ path, the operation type and the operation related data (source, target)
 
-# result types
+# operation types
 
 support five types of operation:
 
@@ -28,4 +28,5 @@ the node of path is an array and some elements appened as target
 
 # path
 
-seperated by ".", if the whole object is different, the path will be "."
+* seperated by ".".
+* if totally different, the path will be "."
