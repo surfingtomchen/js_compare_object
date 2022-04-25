@@ -209,8 +209,44 @@ function test_4() {
     console.log(`result is ${is_same}, path is ${path}, differ from ${JSON.stringify(source)} to ${JSON.stringify(target)}`);
 }
 
-test_0();
-test_1();
-test_2();
-test_3();
-test_4();
+
+function test_5() {
+    const a = {
+        "root_1": {
+            "level_1": {
+                "a": "a_value",
+                "b": "b_value",
+            }
+        },
+        "root_2": {
+            "hello": "world",
+        },
+        "root_3": [1, 2, 3],
+    };
+
+    const b = {
+        "root_2": {
+            "hello": "world",
+        },
+        "root_1": {
+            "level_1": {
+                "b": "b_value",
+                "a": "a_value",
+            }
+        },
+    };
+
+    const {is_same, path, source, target} = compare(a, b);
+    console.assert(is_same === false, `is_same expect false, get ${is_same}`);
+    console.assert(path === '.', `path expect '.', get ${path}`);
+    console.assert(source === a, `source expect ${a}, get ${JSON.stringify(source)}`);
+    console.assert(target === b, `target expect ${b}, get ${JSON.stringify(target)}`);
+    console.log(`result is ${is_same}, path is ${path}, differ from ${JSON.stringify(source)} to ${JSON.stringify(target)}`);
+}
+
+// test_0();
+// test_1();
+// test_2();
+// test_3();
+// test_4();
+test_5();
