@@ -4,7 +4,7 @@ const SAME = {
 
 const OP_ADD_KEYS        = Symbol("add_keys");
 const OP_REMOVE_KEYS     = Symbol("remove_keys");
-const OP_CHANGE_ONE      = Symbol("change_one");
+const OP_REPLACE         = Symbol("replace");
 const OP_TRUNC_ELEMENTS  = Symbol("trunc_elements");            // 数组尾部删除了元素
 const OP_APPEND_ELEMENTS = Symbol("append_elements");           // 数组尾部添加了元素
 
@@ -65,7 +65,7 @@ function compare_array(a1, a2) {
     let last_differ_key  = null;
     let last_source      = null;
     let last_target      = null;
-    let last_op          = OP_CHANGE_ONE;
+    let last_op          = OP_REPLACE;
 
     let idx_1 = 0;
     let idx_2 = 0;
@@ -107,7 +107,7 @@ function compare_array(a1, a2) {
     }
 
     if (difference_count > 1 || difference_count === 1 && idx_1 !== idx_2) {
-        return root_is_different(OP_CHANGE_ONE, a1, a2);
+        return root_is_different(OP_REPLACE, a1, a2);
     }
 
     return {
@@ -132,7 +132,7 @@ function compare_object(o1, o2) {
     let last_differ_key  = null;
     let last_source      = null;
     let last_target      = null;
-    let last_op          = OP_CHANGE_ONE;
+    let last_op          = OP_REPLACE;
 
     let keys_removed = {};
     for (let k in s1) {
@@ -163,7 +163,7 @@ function compare_object(o1, o2) {
         }
 
         if (!is_empty_object(keys_added) && !is_empty_object(keys_removed)) {
-            return root_is_different(OP_CHANGE_ONE, o1, o2);
+            return root_is_different(OP_REPLACE, o1, o2);
         }
 
         if (!is_empty_object(keys_added)) {
@@ -176,7 +176,7 @@ function compare_object(o1, o2) {
     }
 
     if (difference_count > 1 || difference_count === 1 && (!is_empty_object(keys_added) || !is_empty_object(keys_removed))) {
-        return root_is_different(OP_CHANGE_ONE, o1, o2);
+        return root_is_different(OP_REPLACE, o1, o2);
     }
 
 
@@ -194,7 +194,7 @@ function compare(object1, object2) {
         return compare_array(object1, object2);
     } else if (typeof object1 === 'object' && typeof object2 === 'object') {
         return compare_object(object1, object2);
-    } else return root_is_different(OP_CHANGE_ONE, object1, object2);
+    } else return root_is_different(OP_REPLACE, object1, object2);
 }
 
 // tests
@@ -218,7 +218,7 @@ function test_1() {
     const {is_same, op, path, source, target} = compare(a, b);
     console.assert(is_same === false, `is_same expect false, get ${is_same}`);
     console.assert(path === '.["hello"].', `path expect '.', get ${path}`);
-    console.assert(op === OP_CHANGE_ONE, `op expect OP_CHANGE, get ${JSON.stringify(op)}`);
+    console.assert(op === OP_REPLACE, `op expect OP_CHANGE, get ${JSON.stringify(op)}`);
     console.assert(source === "world", `source expect 'world', get ${JSON.stringify(source)}`);
     console.assert(target === "nothing", `target expect 'nothing', get ${JSON.stringify(target)}`);
     console.log(`test 1: result is ${is_same}, op is ${op.toString()}, path is ${path}, changed from ${JSON.stringify(source)} to ${JSON.stringify(target)}`);
@@ -231,7 +231,7 @@ function test_2() {
     const {is_same, op, path, source, target} = compare(a, b);
     console.assert(is_same === false, `is_same expect false, get ${is_same}`);
     console.assert(path === '.', `path expect '.', get ${path}`);
-    console.assert(op === OP_CHANGE_ONE, `op expect OP_CHANGE, get ${JSON.stringify(op)}`);
+    console.assert(op === OP_REPLACE, `op expect OP_CHANGE, get ${JSON.stringify(op)}`);
     console.assert(source === a, `source expect ${JSON.stringify(a)}, get ${JSON.stringify(source)}`);
     console.assert(target === b, `target expect ${JSON.stringify(b)}, get ${JSON.stringify(target)}`);
     console.log(`test 2: result is ${is_same}, op is ${op.toString()}, path is ${path}, changed from ${JSON.stringify(source)} to ${JSON.stringify(target)}`);
@@ -262,7 +262,7 @@ function test_3() {
     console.assert(is_same === false, `is_same expect false, get ${is_same}`);
     console.assert(path === '.["root_1"].["level_1"].["a"].', `path expect '.["root_1"].["level_1"].["a"].', get ${path}`);
     console.assert(source === 'a_value', `source expect 'a_value', get ${JSON.stringify(source)}`);
-    console.assert(op === OP_CHANGE_ONE, `op expect OP_CHANGE, get ${JSON.stringify(op)}`);
+    console.assert(op === OP_REPLACE, `op expect OP_CHANGE, get ${JSON.stringify(op)}`);
     console.assert(target === 'a_value_changed', `target expect 'a_value_changed', get ${JSON.stringify(target)}`);
     console.log(`test 3: result is ${is_same}, op is ${op.toString()}, path is ${path}, changed from ${JSON.stringify(source)} to ${JSON.stringify(target)}`);
 }
@@ -279,7 +279,7 @@ function test_4() {
     const {is_same, path, op, source, target} = compare(a, b);
     console.assert(is_same === false, `is_same expect false, get ${is_same}`);
     console.assert(path === '.[1].["a"].', `path expect '.[1].["a"]', get ${path}`);
-    console.assert(op === OP_CHANGE_ONE, `op expect OP_CHANGE, get ${JSON.stringify(op)}`);
+    console.assert(op === OP_REPLACE, `op expect OP_CHANGE, get ${JSON.stringify(op)}`);
     console.assert(source === "a_value", `source expect 'a_value', get ${JSON.stringify(source)}`);
     console.assert(target === "a_value_changed", `target expect 'a_value_changed', get ${JSON.stringify(target)}`);
     console.log(`test 4: result is ${is_same}, op is ${op.toString()}, path is ${path}, changed from ${JSON.stringify(source)} to ${JSON.stringify(target)}`);
@@ -340,7 +340,7 @@ function test_7() {
     const {is_same, path, op, source, target} = compare(a, b);
     console.assert(is_same === false, `is_same expect false, get ${is_same}`);
     console.assert(path === '.', `path expect '.', get ${path}`);
-    console.assert(op === OP_CHANGE_ONE, `op expect OP_CHANGE, get ${JSON.stringify(op)}`);
+    console.assert(op === OP_REPLACE, `op expect OP_CHANGE, get ${JSON.stringify(op)}`);
     console.assert(object_equals(source, a), `source expect ${JSON.stringify(a)}, get ${JSON.stringify(source)}`);
     console.assert(object_equals(target, b), `target expect ${JSON.stringify(b)}, get ${JSON.stringify(target)}`);
     console.log(`test 7: result is ${is_same}, op is ${op.toString()}, path is ${path}, changed from ${JSON.stringify(source)} to ${JSON.stringify(target)}`);
@@ -379,7 +379,7 @@ function test_10() {
     const {is_same, path, op, source, target} = compare(a, b);
     console.assert(is_same === false, `is_same expect false, get ${is_same}`);
     console.assert(path === '.', `path expect '.', get ${path}`);
-    console.assert(op === OP_CHANGE_ONE, `op expect OP_CHANGE_ONE, get ${JSON.stringify(op)}`);
+    console.assert(op === OP_REPLACE, `op expect OP_CHANGE_ONE, get ${JSON.stringify(op)}`);
     console.assert(object_equals(source, a), `source expect ${JSON.stringify(a)}, get ${JSON.stringify(source)}`);
     console.assert(object_equals(target, b), `target expect ${JSON.stringify(b)}, get ${JSON.stringify(target)}`);
     console.log(`test 10: result is ${is_same}, op is ${op.toString()}, path is ${path}, changed from ${JSON.stringify(source)}, ${JSON.stringify(target)}`);
@@ -392,7 +392,7 @@ function test_11() {
     const {is_same, path, op, source, target} = compare(a, b);
     console.assert(is_same === false, `is_same expect false, get ${is_same}`);
     console.assert(path === '.', `path expect '.', get ${path}`);
-    console.assert(op === OP_CHANGE_ONE, `op expect OP_CHANGE_ONE, get ${JSON.stringify(op)}`);
+    console.assert(op === OP_REPLACE, `op expect OP_CHANGE_ONE, get ${JSON.stringify(op)}`);
     console.assert(object_equals(source, a), `source expect ${JSON.stringify(a)}, get ${JSON.stringify(source)}`);
     console.assert(object_equals(target, b), `target expect ${JSON.stringify(b)}, get ${JSON.stringify(target)}`);
     console.log(`test 11: result is ${is_same}, op is ${op.toString()}, path is ${path}, changed from ${JSON.stringify(source)}, ${JSON.stringify(target)}`);
@@ -405,7 +405,7 @@ function test_12() {
     const {is_same, path, op, source, target} = compare(a, b);
     console.assert(is_same === false, `is_same expect false, get ${is_same}`);
     console.assert(path === '.["root"].', `path expect '.["root"].', get ${path}`);
-    console.assert(op === OP_CHANGE_ONE, `op expect OP_CHANGE_ONE, get ${JSON.stringify(op)}`);
+    console.assert(op === OP_REPLACE, `op expect OP_CHANGE_ONE, get ${JSON.stringify(op)}`);
     console.assert(object_equals(source, a.root), `source expect ${JSON.stringify(a.root)}, get ${JSON.stringify(source)}`);
     console.assert(object_equals(target, b.root), `target expect ${JSON.stringify(b.root)}, get ${JSON.stringify(target)}`);
     console.log(`test 12: result is ${is_same}, op is ${op.toString()}, path is ${path}, changed from ${JSON.stringify(source)}, ${JSON.stringify(target)}`);
@@ -418,7 +418,7 @@ function test_13() {
     const {is_same, path, op, source, target} = compare(a, b);
     console.assert(is_same === false, `is_same expect false, get ${is_same}`);
     console.assert(path === '.', `path expect '.', get ${path}`);
-    console.assert(op === OP_CHANGE_ONE, `op expect OP_CHANGE_ONE, get ${JSON.stringify(op)}`);
+    console.assert(op === OP_REPLACE, `op expect OP_CHANGE_ONE, get ${JSON.stringify(op)}`);
     console.assert(object_equals(source, a), `source expect ${JSON.stringify(a)}, get ${JSON.stringify(source)}`);
     console.assert(object_equals(target, b), `target expect ${JSON.stringify(b)}, get ${JSON.stringify(target)}`);
     console.log(`test 13: result is ${is_same}, op is ${op.toString()}, path is ${path}, changed from ${JSON.stringify(source)}, ${JSON.stringify(target)}`);
