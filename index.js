@@ -116,7 +116,7 @@ function compare_array(a1, a2) {
 }
 
 function compare_object(o1, o2) {
-    if (o1 === o2) {
+    if (o1 === o2 || object_equals(o1, o2)) {
         return SAME;
     } else if (o1 == null) {
         return root_is_different(OP_ADD_KEYS, null, o2);
