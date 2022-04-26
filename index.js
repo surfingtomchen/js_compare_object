@@ -200,7 +200,7 @@ function compare(object1, object2) {
 // tests
 function test_0() {
     const a = {"hello": "world", "some": 1};
-    const b = {"hello": "world", "some": 1};
+    const b = {"some": 1, "hello": "world"};
 
     const {is_same, op, path, source, target} = compare(a, b);
     console.assert(is_same === true, `is_same expect true, get ${is_same}`);
